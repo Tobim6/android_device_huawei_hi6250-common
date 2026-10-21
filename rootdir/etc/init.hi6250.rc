@@ -49,6 +49,13 @@ on fs
 on post-fs-data
     start teecd
 
+    # Android 9 wifi paths; the stock (Android 8) rc only made /data/misc/wifi, so
+    # wpa_supplicant could not create /data/vendor/wifi/wpa/wpa_supplicant.conf.
+    mkdir /data/vendor/wifi 0771 wifi wifi
+    mkdir /data/vendor/wifi/wpa 0770 wifi wifi
+    mkdir /data/vendor/wifi/wpa/sockets 0770 wifi wifi
+    mkdir /data/vendor/wifi/hostapd 0770 wifi wifi
+
 on property:ro.lineage.device=*
     setprop qemu.hw.mainkeys 1
 
