@@ -28,6 +28,15 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.connectivity.chiptype=hisi \
     ro.connectivity.sub_chiptype=hi1102
 
+# Display
+# Panel is natively 1200x1920 portrait; stock AGS2 sets ro.panel.hw_orientation=90 and
+# ro.sf.lcd_density=320 (product/etc/prop/local.prop). Without a density SurfaceFlinger
+# logs "ro.sf.lcd_density must be defined" and falls back to a wrong scale.
+# If the picture comes out upside down, use 270.
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.sf.lcd_density=320 \
+    ro.sf.hwrotation=90
+
 # Perf
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.vendor.qti.sys.fw.bg_apps_limit=60
