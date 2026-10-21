@@ -81,6 +81,13 @@ DEVICE_FRAMEWORK_MANIFEST_FILE := $(VENDOR_PATH)/framework_manifest.xml
 # because LOS16 audioserver asks for the standard audio@4.0 interface)
 DEVICE_MANIFEST_FILE := $(VENDOR_PATH)/manifest.xml
 
+# Boot animation
+# The panel is natively 1200x1920 portrait and the tablet is used in landscape, but the boot
+# animation is drawn before the window manager (and its rotation) exists. This is the stock
+# Lineage animation with every frame rotated 90 degrees clockwise (desc.txt 400x1200), so it
+# appears upright when the tablet is held in landscape.
+TARGET_BOOTANIMATION := $(VENDOR_PATH)/bootanimation/bootanimation.zip
+
 # Init
 TARGET_INIT_VENDOR_LIB := libinit_hi6250
 TARGET_RECOVERY_DEVICE_MODULES := libinit_hi6250

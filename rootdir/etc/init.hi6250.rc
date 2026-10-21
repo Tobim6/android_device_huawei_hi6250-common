@@ -631,3 +631,15 @@ on boot
     chmod 0660 /dev/mtp_usb
     chown system system /dev/ptp_usb
     chmod 0660 /dev/ptp_usb
+
+# --- Default to landscape ---
+# The panel is natively portrait. This SurfaceFlinger has no ro.sf.hwrotation, so landscape is the
+# framework's ROTATION_90 user rotation. The SettingsProvider overlay only helps on a rebuilt system
+# image and was observed to be reset to 0 after reboot, so also enforce it from init at boot.
+service set_user_rotation /system/bin/cmd settings put system user_rotation 1
+    user root
+    oneshot
+    disabled
+
+on property:sys.boot_completed=1
+    start set_user_rotation
