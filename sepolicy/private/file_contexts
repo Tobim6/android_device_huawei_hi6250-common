@@ -45,3 +45,4 @@
 
 # Configs
 /system/etc/audio_policy_configuration.xml    u:object_r:vendor_configs_file:s0
+/system/etc/native_packages.xml  u:object_r:teecd_data_file:s0
