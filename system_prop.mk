@@ -19,6 +19,15 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.config.media_vol_steps=25 \
     ro.config.vc_call_vol_steps=7
 
+# Connectivity
+# Stock EMUI8's patched init derives these from the device tree
+# (/proc/device-tree/hw_connectivity/chip_type = hisi, hi1102 node present) before it
+# parses any rc. Without them init.connectivity.rc imports an empty-named file and the
+# gnss/wifi HALs cannot pick their chip (gps.hi1102.default.so via gps_hardware_id).
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.connectivity.chiptype=hisi \
+    ro.connectivity.sub_chiptype=hi1102
+
 # Perf
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.vendor.qti.sys.fw.bg_apps_limit=60

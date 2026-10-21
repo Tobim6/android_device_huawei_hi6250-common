@@ -14,13 +14,6 @@ on init
     # system/vendor/odm/product).
     symlink /dev/block/platform/hi_mci.0 /dev/block/bootdevice
 
-    # hw_get_module("gps") resolves gps.<ro.hardware.gps>.so; the vendor ships
-    # gps.hi1102.default.so (Hi1102 combo chip), so without this the gnss HAL
-    # services die with "hw_get_module gps failed: -2" and system_server's
-    # main thread blocks forever in GnssLocationProvider.class_init_native
-    # waiting for android.hardware.gnss@1.0::IGnss/default.
-    setprop ro.hardware.gps hi1102.default
-
 on fs
     # The real stock init.hi6250.rc (extracted directly from working
     # firmware, see vendor_huawei_AGS2/proprietary/etc/init/hw/init.hi6250.rc)
