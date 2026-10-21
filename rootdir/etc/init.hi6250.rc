@@ -55,6 +55,10 @@ on post-fs-data
     mkdir /data/vendor/wifi/wpa 0770 wifi wifi
     mkdir /data/vendor/wifi/wpa/sockets 0770 wifi wifi
     mkdir /data/vendor/wifi/hostapd 0770 wifi wifi
+    # The shipped (EMUI8-built) supplicant generates its config under /data/vendor/wifi/wpa
+    # but opens these legacy paths when adding wlan0/p2p0, and exits if p2p0 cannot be added.
+    symlink /data/vendor/wifi/wpa/wpa_supplicant.conf /data/misc/wifi/wpa_supplicant.conf
+    symlink /data/vendor/wifi/wpa/p2p_supplicant.conf /data/misc/wifi/p2p_supplicant.conf
 
 on property:ro.lineage.device=*
     setprop qemu.hw.mainkeys 1
