@@ -170,7 +170,7 @@
         <xi:include href="/vendor/etc/r_submix_audio_policy_configuration.xml"/>
 
         <!-- Dp Audio HAL -->
-        <xi:include href="/vendor/etc/dp_audio_policy_configuration.xml"/>
+        <xi:include href="/vendor/etc/dp_audio_policy_configuration.xml"><xi:fallback/></xi:include>
 
         <!-- Hearing aid Audio HAL -->
         <!-- <xi:include href="hearing_aid_audio_policy_configuration.xml"/> -->
