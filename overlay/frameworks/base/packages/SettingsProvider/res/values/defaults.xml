@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     The AGS2 panel is natively 1200x1920 portrait but the tablet is used in landscape.
+     This SurfaceFlinger has no ro.sf.hwrotation, so default the user rotation to
+     ROTATION_90 (verified upright via screencap) with auto-rotate still off.
+-->
+<resources>
+    <integer name="def_user_rotation">1</integer>
+</resources>
