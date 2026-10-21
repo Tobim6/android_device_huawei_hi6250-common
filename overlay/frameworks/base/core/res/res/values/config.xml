@@ -223,4 +223,6 @@
     closed.  The default is 0. -->
     <integer name="config_lidNavigationAccessibility">1</integer>
 
+    <!-- Panel is natively portrait; the lockscreen must follow the (landscape) user rotation too. -->
+    <bool name="config_enableLockScreenRotation">true</bool>
 </resources>

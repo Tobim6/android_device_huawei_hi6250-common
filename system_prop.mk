@@ -35,6 +35,12 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.sf.lcd_density=320
 
+# Lockscreen rotation: SystemUI's keyguard window requests NOSENSOR, so it stayed portrait until
+# unlock. This property is read at runtime by StatusBarWindowManager and works on the existing
+# system image as well as the config overlay.
+PRODUCT_PROPERTY_OVERRIDES += \
+    lockscreen.rot_override=true
+
 # Perf
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.vendor.qti.sys.fw.bg_apps_limit=60
