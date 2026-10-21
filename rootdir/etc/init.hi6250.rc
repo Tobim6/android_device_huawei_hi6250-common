@@ -40,6 +40,11 @@ on fs
     mount none /product/lost+found /product/app bind
     mount none /vendor/lost+found /vendor/etc/audio bind
     mount none /system/etc/audio_policy_configuration.xml /vendor/etc/audio_policy_configuration.xml bind
+    # The BT HAL hardcodes libbt-vendor.so, which is the Broadcom variant (opens /dev/ttyAMA4
+    # + rfkill, neither exists here). This board is a Hi1102 combo (hisi_bfgx in the DT), whose
+    # BT goes through /dev/hwbt via libbt-vendor-hisi.so. Stock init does this switch in C.
+    mount none /vendor/lib64/libbt-vendor-hisi.so /vendor/lib64/libbt-vendor.so bind
+    mount none /vendor/lib/libbt-vendor-hisi.so /vendor/lib/libbt-vendor.so bind
 
 on post-fs-data
     start teecd
