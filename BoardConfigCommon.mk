@@ -77,6 +77,9 @@ TARGET_USES_HWC2 := true
 
 # HIDL
 DEVICE_FRAMEWORK_MANIFEST_FILE := $(VENDOR_PATH)/framework_manifest.xml
+# Vendor HAL manifest (stock EMUI8 vendor manifest, audio/effect declared as 4.0
+# because LOS16 audioserver asks for the standard audio@4.0 interface)
+DEVICE_MANIFEST_FILE := $(VENDOR_PATH)/manifest.xml
 
 # Init
 TARGET_INIT_VENDOR_LIB := libinit_hi6250
