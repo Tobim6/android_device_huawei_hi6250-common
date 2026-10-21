@@ -16,6 +16,15 @@
 
 VENDOR_PATH := device/huawei/hi6250-common
 
+# Platform
+# Never set in this tree at all -- ro.board.platform/ro.product.board end up
+# empty, and ro.hardware only happened to still resolve to "hi6250" via
+# init's device-tree "compatible" string fallback (confirmed live:
+# hisilicon,hi6250 -> hi6250). Anything that checks ro.board.platform
+# directly (codec allowlists, GPU driver quirks, etc) would silently see an
+# empty string instead.
+TARGET_BOARD_PLATFORM := hi6250
+
 # Architecture
 TARGET_ARCH := arm64
 TARGET_ARCH_VARIANT := armv8-a
@@ -80,9 +89,6 @@ BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_CACHEIMAGE_PARTITION_SIZE := 16777216
 BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2207764736
 TARGET_COPY_OUT_VENDOR := vendor
-
-# Radio
-TARGET_PROVIDES_QTI_TELEPHONY_JAR := true
 
 # Recovery
 TARGET_RECOVERY_FSTAB := $(VENDOR_PATH)/rootdir/etc/fstab.hi6250
