@@ -57,6 +57,10 @@ PRODUCT_PACKAGES += \
     lineage.touch@1.0-service.hi6250
 
 # NFC: none of the AGS2 tablets have NFC hardware, so no NfcNci/HAL/features here.
+# Landscape default (see rootdir/bin/landscape_default.sh)
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/rootdir/bin/landscape_default.sh:$(TARGET_COPY_OUT_VENDOR)/bin/landscape_default.sh
+
 # Permissions
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.fingerprint.xml:system/etc/permissions/android.hardware.fingerprint.xml \

@@ -49,6 +49,9 @@ on fs
 on post-fs-data
     start teecd
 
+    # Landscape from the first frame: patch the stored user_rotation before system_server reads it.
+    exec - root root -- /vendor/bin/sh /vendor/bin/landscape_default.sh
+
     # Android 9 wifi paths; the stock (Android 8) rc only made /data/misc/wifi, so
     # wpa_supplicant could not create /data/vendor/wifi/wpa/wpa_supplicant.conf.
     mkdir /data/vendor/wifi 0771 wifi wifi
