@@ -34,6 +34,7 @@ PRODUCT_PACKAGES += \
 
 # Camera (the ICameraProvider is registered by the vendor CameraDaemon itself)
 PRODUCT_PACKAGES += \
+    libfence_compat \
     Snap
 
 # Device init scripts
