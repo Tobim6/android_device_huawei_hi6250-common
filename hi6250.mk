@@ -32,7 +32,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     bfm-ctl
 
-# Camera
+# Camera (the ICameraProvider is registered by the vendor CameraDaemon itself)
 PRODUCT_PACKAGES += \
     Snap
 
