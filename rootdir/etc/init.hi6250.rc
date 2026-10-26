@@ -646,3 +646,14 @@ service set_user_rotation /system/bin/cmd settings put system user_rotation 1
 
 on property:sys.boot_completed=1
     start set_user_rotation
+
+# NV (oeminfo) server: serves the factory MACBT/MACWLAN items to mac_addr_normalization (and camera NV).
+# The stock /sbin/oeminfo_nvm_server of the EMUI8 ramdisk is missing from our ramdisk, so run the vendor copy.
+service oeminfo_nvm_vendor /vendor/bin/oeminfo_nvm_server
+    class core
+    user root
+    group root
+    ioprio rt 4
+
+on post-fs
+    start oeminfo_nvm_vendor

@@ -37,6 +37,10 @@ PRODUCT_PACKAGES += \
     libfence_compat \
     Snap
 
+# Wifi: Android 9 HIDL hostapd (soft AP)
+PRODUCT_PACKAGES += \
+    hostapd
+
 # Device init scripts
 PRODUCT_PACKAGES += \
     init.hi6250.rc

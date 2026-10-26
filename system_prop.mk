@@ -48,3 +48,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # USB
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     ro.cust.cdrom=/dev/null
+
+# Hardware Bluetooth/wifi MAC addresses, written from NV by mac_addr_normalization
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.bt.bdaddr_path=/data/misc/bluedroid/macbt \
+    ro.wifi.wifiaddr_path=/data/misc/wifi/macwifi
