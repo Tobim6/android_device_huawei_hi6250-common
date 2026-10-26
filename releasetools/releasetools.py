@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import common
 import re
 
 def FullOTA_Assertions(info):
@@ -32,3 +33,14 @@ def AddVendorAssertion(info, input_zip):
     if m:
         cmd = 'assert(huawei.verify_vendor_build_id("' + m.group(1).rstrip() + '") == "1");'
         info.script.AppendExtra(cmd)
+
+def FullOTA_InstallEnd(info):
+    # /odm is a separate partition that LineageOS 16.0's build system cannot build; the device tree builds odm.img
+    # (odm-image/Android.mk) and ships it as RADIO/odm.img.
+    try:
+        odm = info.input_zip.read("RADIO/odm.img")
+    except KeyError:
+        return
+    common.ZipWriteStr(info.output_zip, "odm.img", odm)
+    info.script.Print("Flashing odm...")
+    info.script.AppendExtra('package_extract_file("odm.img", "/dev/block/bootdevice/by-name/odm");')
