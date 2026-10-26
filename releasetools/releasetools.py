@@ -15,11 +15,23 @@
 
 import common
 import re
+import sys
+
+def DropCompatibilityZip():
+    # ota_from_target_files adds compatibility.zip (vendor/system VINTF manifests) to every Treble OTA and recovery
+    # then refuses to flash the package on this device. There is no option to turn it off, so neutralise the step
+    # (called later than this hook, which runs from the *_Assertions entry points).
+    for name in ('__main__', 'ota_from_target_files'):
+        mod = sys.modules.get(name)
+        if mod is not None and hasattr(mod, 'AddCompatibilityArchiveIfTrebleEnabled'):
+            mod.AddCompatibilityArchiveIfTrebleEnabled = lambda *args, **kwargs: None
 
 def FullOTA_Assertions(info):
+    DropCompatibilityZip()
     AddVendorAssertion(info, info.input_zip)
 
 def IncrementalOTA_Assertions(info):
+    DropCompatibilityZip()
     AddVendorAssertion(info, info.target_zip)
 
 def FullOTA_PostValidate(info):
