@@ -657,3 +657,8 @@ service oeminfo_nvm_vendor /vendor/bin/oeminfo_nvm_server
 
 on post-fs
     start oeminfo_nvm_vendor
+
+# Wi-Fi country code: the tablet has no SIM to supply one, and with no country code Settings disables the hotspot
+# "AP Band" (2.4 GHz only). Use the unrestricted world domain ("00") as the default so the code is never null.
+on early-init
+    setprop ro.boot.wificountrycode 00
