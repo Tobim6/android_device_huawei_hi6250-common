@@ -665,3 +665,8 @@ on post-fs
 # "AP Band" (2.4 GHz only). Use the unrestricted world domain ("00") as the default so the code is never null.
 on early-init
     setprop ro.boot.wificountrycode 00
+
+# This is a userdebug bring-up port: AOSP's default is persist.sys.usb.config=none, which leaves no adb on a fresh /data.
+# Enable adb unless the user has picked another USB mode.
+on boot && property:persist.sys.usb.config=none
+    setprop persist.sys.usb.config adb
