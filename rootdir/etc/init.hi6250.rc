@@ -670,3 +670,12 @@ on early-init
 # Enable adb unless the user has picked another USB mode.
 on boot && property:persist.sys.usb.config=none
     setprop persist.sys.usb.config adb
+
+# These Huawei services cannot run on this port and only respawn every 5 s (missing SELinux domains / symbols in the
+# EMUI8-generation impl libs); nothing in boot depends on them.
+on boot
+    stop perfgenius-hal-1-0
+    stop activityrecognition_1_1
+    stop hinetmanager
+    stop hwfactoryinterface-hal-1-1
+    stop logcat_cache
