@@ -14,7 +14,9 @@
 # limitations under the License.
 
 import common
+import math
 import re
+import struct
 import sys
 
 def DropCompatibilityZip():
@@ -25,6 +27,31 @@ def DropCompatibilityZip():
         mod = sys.modules.get(name)
         if mod is not None and hasattr(mod, 'AddCompatibilityArchiveIfTrebleEnabled'):
             mod.AddCompatibilityArchiveIfTrebleEnabled = lambda *args, **kwargs: None
+
+def _image_bytes(zf, name):
+    # size of IMAGES/<name>.img in the target files: sparse image header (blk_sz * total_blks) or the plain file length
+    zi = zf.getinfo("IMAGES/%s.img" % name)
+    with zf.open(zi) as f:
+        head = f.read(28)
+    if len(head) == 28 and struct.unpack("<I", head[:4])[0] == 0xED26FF3A:
+        blk_sz, total_blks = struct.unpack("<II", head[12:20])
+        return blk_sz * total_blks
+    return zi.file_size
+
+def FullOTA_InstallBegin(info):
+    # AGS2: the zip repartitions the eMMC from "preas" on, sized for the images in this very zip (device/huawei/AGS2/repartition).
+    # The script skips by itself when the table is already repartitioned and big enough, and aborts on any unexpected table.
+    try:
+        info.input_zip.getinfo("INSTALL/bin/repartition.sh")
+    except KeyError:
+        return
+    mib = 1024 * 1024
+    system_mib = int(math.ceil(_image_bytes(info.input_zip, "system") / float(mib)))
+    vendor_mib = int(math.ceil(_image_bytes(info.input_zip, "vendor") / float(mib)))
+    info.script.Print("Checking the partition table (system %d MiB, vendor %d MiB)..." % (system_mib, vendor_mib))
+    info.script.UnpackPackageDir("install", "/tmp/install")
+    info.script.SetPermissionsRecursive("/tmp/install/bin", 0, 0, 0755, 0755, None, None)
+    info.script.AppendExtra('assert(run_program("/tmp/install/bin/repartition.sh", "%d", "%d") == 0);' % (system_mib, vendor_mib))
 
 def FullOTA_Assertions(info):
     DropCompatibilityZip()

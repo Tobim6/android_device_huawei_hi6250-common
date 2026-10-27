@@ -31,14 +31,16 @@ on fs
     # "wait" mounts would each block on fs_mgr_wait_for_file() for the full
     # timeout before giving up, one after another, for every single line
     # below. Using the confirmed-working "bootdevice"-prefixed path instead.
-    mount ext4 /dev/block/bootdevice/by-name/cust /cust wait ro
-    mount ext4 /dev/block/bootdevice/by-name/cust${ro.boot.slot_suffix} /cust wait ro
+    # cust/product/version do not wait: the AGS2 install zip deletes those partitions (device/huawei/AGS2/repartition), and a
+    # missing device must not cost boot time. They still mount where they exist.
+    mount ext4 /dev/block/bootdevice/by-name/cust /cust ro
+    mount ext4 /dev/block/bootdevice/by-name/cust${ro.boot.slot_suffix} /cust ro
     mount ext4 /dev/block/bootdevice/by-name/preload /preload wait ro
     mount ext4 /dev/block/bootdevice/by-name/preload${ro.boot.slot_suffix} /preload wait ro
-    mount ext4 /dev/block/bootdevice/by-name/product /product wait ro
-    mount ext4 /dev/block/bootdevice/by-name/product${ro.boot.slot_suffix} /product wait ro
-    mount ext4 /dev/block/bootdevice/by-name/version /version wait ro
-    mount ext4 /dev/block/bootdevice/by-name/version${ro.boot.slot_suffix} /version wait ro
+    mount ext4 /dev/block/bootdevice/by-name/product /product ro
+    mount ext4 /dev/block/bootdevice/by-name/product${ro.boot.slot_suffix} /product ro
+    mount ext4 /dev/block/bootdevice/by-name/version /version ro
+    mount ext4 /dev/block/bootdevice/by-name/version${ro.boot.slot_suffix} /version ro
     mount none /odm/hw_odm/${ro.boot.product.hardware.sku} /hw_odm bind
     mount none /product/lost+found /product/app bind
     mount none /vendor/lost+found /vendor/etc/audio bind
