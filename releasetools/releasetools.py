@@ -55,7 +55,12 @@ def FullOTA_InstallBegin(info):
 
 def FullOTA_Assertions(info):
     DropCompatibilityZip()
-    AddVendorAssertion(info, info.input_zip)
+    try:
+        info.input_zip.getinfo("INSTALL/bin/repartition.sh")
+        # AGS2: this package repartitions the eMMC and flashes vendor itself; the installed vendor's build id is meaningless (and
+        # unreadable after the repartition), so huawei.verify_vendor_build_id() would abort a perfectly good install.
+    except KeyError:
+        AddVendorAssertion(info, info.input_zip)
 
 def IncrementalOTA_Assertions(info):
     DropCompatibilityZip()
