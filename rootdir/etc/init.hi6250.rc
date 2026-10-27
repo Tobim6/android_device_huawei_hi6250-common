@@ -651,8 +651,8 @@ on property:sys.boot_completed=1
     start set_user_rotation
 
 # NV (oeminfo) server: serves the factory MACBT/MACWLAN items to mac_addr_normalization (and camera NV).
-# The stock /sbin/oeminfo_nvm_server of the EMUI8 ramdisk is missing from our ramdisk, so run the vendor copy.
-service oeminfo_nvm_vendor /vendor/bin/oeminfo_nvm_server
+# The stock /sbin/oeminfo_nvm_server of the EMUI8 ramdisk is missing from our ramdisk, so run the copy this build installs in /system/bin (an older revision pointed at /vendor/bin, which does not exist, so MACBT/MACWLAN fell back to random addresses).
+service oeminfo_nvm_vendor /system/bin/oeminfo_nvm_server
     class core
     user root
     group root
