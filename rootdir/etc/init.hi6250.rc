@@ -81,12 +81,27 @@ service bfm-ctl /system/bin/bfm-ctl
     group system
     oneshot
 
-service charger /sbin/chargeonlymode -p
+# Offline charging. The stock /sbin/chargeonlymode is only built for anne/figo (vendor/huawei/hi6250-common),
+# so on AGS2 this service could never start; being critical, init then rebooted into recovery after a while.
+# Use the AOSP healthd charger that the ramdisk ships (/sbin/charger + res/images/charger). Not critical: a
+# charger failure must not bounce the device into recovery (the battery still charges without the animation).
+service charger /sbin/charger
     class charger
     user root
     group root system
-    critical
     seclabel u:r:charger:s0
+
+# Safeguard for the charging screen: the backlight is a separate LED node on this tablet (lcd_backlight0).
+# Keep it lit while in charger mode (this class is stopped when the charger boots Android, see
+# sys.boot_from_charger_mode in init.rc). It is not proven to be required: the charger drew correctly with the
+# backlight at 0 when run by hand, so this is only a harmless guard.
+on charger
+    write /sys/class/leds/lcd_backlight0/brightness 2048
+
+service chg_backlight /system/bin/sh -c "while true; do echo 2048 > /sys/class/leds/lcd_backlight0/brightness; sleep 1; done"
+    class charger
+    user root
+    group root system
 
 # --- Device-node permissions imported from stock EMUI8 vendor init.hi6250.rc ---
 # Only chown/chmod/write/mkdir/restorecon from the early-init, early-boot, init,
