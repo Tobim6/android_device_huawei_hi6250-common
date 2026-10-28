@@ -635,9 +635,11 @@ on boot
     mkdir /dev/usb-ffs/adb 0770 shell system
     mount functionfs adb /dev/usb-ffs/adb uid=2000,gid=1000,rmode=0770,fmode=0660
 
-    chown system system /dev/mtp_usb
+    # group mtp, like the platform ueventd.rc rule: MtpServer runs in android.process.media (uid u0_a5, groups include mtp), not in system, so
+    # system:system made "Failed to start usb driver!" and MTP never worked.
+    chown root mtp /dev/mtp_usb
     chmod 0660 /dev/mtp_usb
-    chown system system /dev/ptp_usb
+    chown root mtp /dev/ptp_usb
     chmod 0660 /dev/ptp_usb
 
 # --- Default to landscape ---
