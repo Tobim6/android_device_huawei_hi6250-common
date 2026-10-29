@@ -78,7 +78,19 @@ def AddVendorAssertion(info, input_zip):
         cmd = 'assert(huawei.verify_vendor_build_id("' + m.group(1).rstrip() + '") == "1");'
         info.script.AppendExtra(cmd)
 
+def _flash_radio_image(info, name, partition, message):
+    try:
+        data = info.input_zip.read("RADIO/%s" % name)
+    except KeyError:
+        return
+    common.ZipWriteStr(info.output_zip, name, data)
+    info.script.Print(message)
+    info.script.AppendExtra('assert(package_extract_file("%s", "/dev/block/bootdevice/by-name/%s"));' % (name, partition))
+
 def FullOTA_InstallEnd(info):
+    # AGS2: the bootloader boots the ramdisk from its own partition (p31); the TWRP build goes to recovery_ramdisk (p32)
+    _flash_radio_image(info, "ramdisk_p31.img", "ramdisk", "Flashing ramdisk...")
+    _flash_radio_image(info, "twrp_recovery_ramdisk.img", "recovery_ramdisk", "Flashing TWRP recovery...")
     # /odm is a separate partition that LineageOS 16.0's build system cannot build; the device tree builds odm.img
     # (odm-image/Android.mk) and ships it as RADIO/odm.img.
     try:

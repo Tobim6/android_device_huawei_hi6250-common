@@ -10,7 +10,6 @@
 /dev/hwlog_dubai                   u:object_r:dubai_log_device:s0
 /dev/hwlog_exception               u:object_r:exception_device:s0
 /dev/hwlog_jank                    u:object_r:jank_device:s0
-/dev/nve0                          u:object_r:recovery_device:s0
 /dev/pmom                          u:object_r:pmom_device:s0
 /dev/ttyAMA0                       u:object_r:irda_device:s0
 /dev/ttyHwGS2                      u:object_r:recovery_device:s0
