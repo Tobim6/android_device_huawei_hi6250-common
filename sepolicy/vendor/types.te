@@ -1,0 +1,33 @@
+# Types used by the AGS2 vendor policy
+# Huawei device nodes that had no label (all of them were plain "device")
+type hifi_device, dev_type;
+type hwfm_device, dev_type;
+type hw_media_device, dev_type;
+type hisi_tty_device, dev_type;
+# sockets created by init for the oeminfo NVM server
+type oeminfo_nvm_socket, file_type;
+type proc_gpu_memory, fs_type, proc_type;
+type tee_prop, property_type;
+type radio_odm_prop, property_type;
+# every vendor.huawei.* HIDL service (vendor-declared, so vendor HAL domains may add it)
+type hw_vendor_hwservice, hwservice_manager_type;
+# misc Huawei platform nodes: sensorhub, nve0 (NV storage), hwgnss, memory_latency, v4l sub-devices
+type hw_misc_device, dev_type;
+# Huawei sysfs nodes (touch glove mode, sensor firmware version, connectivity chip ini/boot)
+type sysfs_hw_sensors, fs_type, sysfs_type;
+type sysfs_hw_conn, fs_type, sysfs_type;
+# NV partition (mmcblk0p7) that /dev/nve0 fronts
+type hw_nv_block_device, dev_type;
+type hw_bt_device, dev_type;
+# scratch file of the landscape helper script (core /data type, lives next to settings_system.xml)
+type ags2_tmp_file, file_type, data_file_type, core_data_file_type;
+# /vendor/firmware blobs (ISP firmware loaded by kernel drivers)
+type hw_firmware_file, vendor_file_type, file_type;
+# secure_storage partition (mmcblk0p13) backing /sec_storage
+type hw_secure_storage_block_device, dev_type;
+# set by start_connectivity_hisi when the hi110x chip is up (init starts octty/oam_hisi/gnss on it); watchdog records of the HALs
+type hw_conn_prop, property_type;
+type hw_xcollie_prop, property_type;
+# device-tree properties of the Huawei audio/gnss HALs (spk_pa_name, vqm_enable, gps_power, ...)
+type sysfs_hw_dt, fs_type, sysfs_type;
+type hw_thp_prop, property_type;

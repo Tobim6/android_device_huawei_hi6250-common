@@ -1,0 +1,23 @@
+# Round 10 (full-audit enforcing boot)
+allow hal_audio_default hal_audio_default:netlink_kobject_uevent_socket { bind setopt };
+allow hal_audio_default oeminfo_nvm_socket:dir { write };
+allow hal_audio_default oeminfo_nvm_socket:file { read };
+allow hal_graphics_allocator_default graphics_device:chr_file { read write };
+allow hw_camera_daemon oeminfo_nvm_socket:file { unlink };
+allow hw_camera_daemon vendor_data_file:file { open read };
+allow hw_vendor_daemon device:chr_file { setattr };
+allow hw_vendor_daemon hw_vendor_daemon:netlink_generic_socket { setopt };
+allow hw_vendor_daemon oeminfo_nvm_socket:dir { write };
+allow hw_vendor_daemon oeminfo_nvm_socket:file { read };
+allow hw_vendor_daemon vendor_data_file:sock_file create_file_perms;
+allow hw_vendor_daemon hw_misc_device:chr_file setattr;
+allow hw_camera_daemon vendor_data_file:file create_file_perms;
+allow hw_vendor_daemon vendor_data_file:sock_file create_file_perms;
+allow { hal_audio_default hal_gnss_default } sysfs_hw_dt:file r_file_perms;
+allow { hal_audio_default hal_gnss_default } sysfs_hw_dt:dir r_dir_perms;
+allow hal_sensors_default sysfs_hw_sensors:file r_file_perms;
+set_prop(hw_vendor_daemon, hw_thp_prop)
+allow hw_camera_daemon oeminfo_nvm_socket:file { unlink read write open getattr };
+# non-functional probes of core data / modules: not allowed by Treble, so keep them out of the log
+dontaudit { hw_vendor_daemon kernel } { system_file wifi_data_file vendor_data_file }:dir *;
+dontaudit init system_file:{ dir file } relabelfrom;

@@ -1,0 +1,56 @@
+# AGS2 vendor labels
+# --- Device nodes (were all "device") ---
+/dev/mali0                                    u:object_r:gpu_device:s0
+/dev/tc_ns_client                             u:object_r:tee_device:s0
+/dev/hifi_misc                                u:object_r:hifi_device:s0
+/dev/hwfm                                     u:object_r:hwfm_device:s0
+/dev/ttyAMA3                                  u:object_r:hisi_tty_device:s0
+/dev/block/mmcblk0p8                          u:object_r:oeminfo_nvm_device:s0
+/dev/socket/oeminfo_nvm                       u:object_r:oeminfo_nvm_socket:s0
+
+# --- Vendor libraries that apps / zygote / system_server load (same-process HALs) ---
+/(vendor|system/vendor)/lib(64)?/hw/gralloc\.hi6250\.so          u:object_r:same_process_hal_file:s0
+/(vendor|system/vendor)/lib(64)?/libhiion\.so                    u:object_r:same_process_hal_file:s0
+/(vendor|system/vendor)/lib(64)?/libhilog\.so                    u:object_r:same_process_hal_file:s0
+/(vendor|system/vendor)/lib(64)?/libc_secshared\.so              u:object_r:same_process_hal_file:s0
+/(vendor|system/vendor)/lib(64)?/libutils\.so                    u:object_r:same_process_hal_file:s0
+
+# --- Daemons: put each in a real domain instead of running as init ---
+/(vendor|system/vendor)/bin/teecd                                 u:object_r:tee_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.huawei\.hardware\..*-service      u:object_r:hw_vendor_daemon_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.huawei\.hardware\.audio@4\.0-service     u:object_r:hal_audio_default_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.huawei\.hardware\.light@2\.0-service     u:object_r:hal_light_default_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.huawei\.hardware\.power@1\.0-service     u:object_r:hal_power_default_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.huawei\.hardware\.sensors@1\.0-service   u:object_r:hal_sensors_default_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.huawei\.hardware\.wifi@1\.1-service      u:object_r:hal_wifi_default_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.huawei\.hardware\.gnss@1\.0-service      u:object_r:hal_gnss_default_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.huawei\.hardware\.hwvibrator@1\.0-service u:object_r:hal_vibrator_default_exec:s0
+/(vendor|system/vendor)/bin/wpa_supplicant_hisi                   u:object_r:hal_wifi_supplicant_default_exec:s0
+/vendor/bin/oeminfo_nvm_server                                    u:object_r:oeminfo_nvm_exec:s0
+/(vendor|system/vendor)/bin/CameraDaemon                          u:object_r:hw_camera_daemon_exec:s0
+/(vendor|system/vendor)/bin/(octty|hisecd|oam_hisi)               u:object_r:hw_vendor_daemon_exec:s0
+
+# --- Logs ---
+/dev/sensorhub                                  u:object_r:hw_misc_device:s0
+/dev/memory_latency                             u:object_r:hw_misc_device:s0
+/dev/hwgnss                                     u:object_r:hw_misc_device:s0
+/dev/nve0                                       u:object_r:hw_misc_device:s0
+/dev/v4l-subdev[0-9]+                           u:object_r:hw_misc_device:s0
+/dev/oinv(/.*)?                                 u:object_r:oeminfo_nvm_socket:s0
+/vendor/bin/(system_teecd|tlogcat)                u:object_r:tee_exec:s0
+/vendor/bin/(storage_info|mac_addr_normalization|gnss_engine_hisi|gnss_control_hisi|gnss_supl20clientd_hisi)  u:object_r:hw_vendor_daemon_exec:s0
+/dev/block/mmcblk0p7                            u:object_r:hw_nv_block_device:s0
+/dev/hwbt                                       u:object_r:hw_bt_device:s0
+/dev/(hwbfgdbg|memory_throughput)               u:object_r:hw_misc_device:s0
+/(vendor|system/vendor)/firmware(/.*)?          u:object_r:hw_firmware_file:s0
+/vendor/bin/(activity_recognition_service|hwemerffu)  u:object_r:hw_vendor_daemon_exec:s0
+/dev/block/mmcblk0p13                           u:object_r:hw_secure_storage_block_device:s0
+/dev/block/mmcblk0p52                           u:object_r:system_block_device:s0
+/dev/block/mmcblk0p53                           u:object_r:system_block_device:s0
+/dev/block/mmcblk0p54                           u:object_r:userdata_block_device:s0
+/dev/block/mmcblk0p42                           u:object_r:cache_block_device:s0
+# sphal: loaded into SurfaceFlinger through libGLES_mali.so
+/(vendor|system/vendor)/lib(64)?/libutils_vendor_callstack_compat\.so  u:object_r:same_process_hal_file:s0
+/(vendor|system/vendor)/bin/(aptouch_daemon|hinetmanager|check_root|isplogcat|start_connectivity_hisi)  u:object_r:hw_vendor_daemon_exec:s0
+/dev/media[0-9]+                                u:object_r:hw_media_device:s0
+/dev/chrKmsgPlat                                u:object_r:hw_misc_device:s0

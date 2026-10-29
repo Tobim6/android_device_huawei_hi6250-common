@@ -1,0 +1,59 @@
+# Core-side (system) init commands for the EMUI8 vendor blobs.
+# Treble keeps vendor_init (every rc file under /vendor/etc/init) away from core /data directories, so everything the
+# vendor rc files used to create outside /data/vendor is created here, by init proper.
+
+# Mount points for the EMUI partitions that the vendor rc files mount (init.hi6250.rc, init.manufacture.rc).
+on init
+    mkdir /cust
+    mkdir /splash2
+    mkdir /3rdmodem
+    mkdir /3rdmodemnvm
+    mkdir /3rdmodemnvmbkp
+
+# The TEE storage directories have to exist before teecd starts (early_hal, late-fs).
+on fs
+    mkdir /data/sec_storage_data 0700 system system
+    restorecon /data/sec_storage_data
+    mkdir /data/sec_storage_data_users 0700 system system
+    restorecon /data/sec_storage_data_users
+
+on post-fs-data
+    # Landscape from the first frame: patch the stored user_rotation before system_server reads it.
+    exec - system system -- /system/bin/sh /system/bin/landscape_default.sh
+    copy /data/system/users/0/ss_rot.xml /data/system/users/0/settings_system.xml
+    rm /data/system/users/0/ss_rot.xml
+
+    mkdir /data/nfc 0755 nfc nfc
+    mkdir /data/share 0770 media_rw media_rw
+    mkdir /data/samba 0755 media_rw media_rw
+
+# Some vendor daemons hardcode directories outside /data/vendor (camera calibration, hisi logs). Treble keeps vendor
+# domains out of core /data, so those paths are bind mounts of real /data/vendor directories: the vendor domains then only
+# ever touch vendor_data_file inodes. (Created after the restorecon_recursive calls in ags2-core-moved.rc ran.)
+on post-fs-data
+    mkdir /data/vendor/camera 0771 system camera
+    mkdir /data/camera 0771 system camera
+    mount none /data/vendor/camera /data/camera bind
+    mkdir /data/vendor/hisi_log 0775 system system
+    mkdir /data/log 0775 system system
+    mount none /data/vendor/hisi_log /data/log bind
+    mkdir /data/vendor/hisi_logs 0770 root system
+    mkdir /data/hisi_logs 0770 root system
+    mount none /data/vendor/hisi_logs /data/hisi_logs bind
+    mkdir /data/vendor/fw 0770 root system
+    mkdir /data/fw 0770 root system
+    mount none /data/vendor/fw /data/fw bind
+    mkdir /data/vendor/gnss 0770 gps system
+    mkdir /data/gnss 0770 gps system
+    mount none /data/vendor/gnss /data/gnss bind
+
+# Landscape also enforced once the framework is up (the SettingsProvider default was observed to be reset to 0).
+# (through sh: init enters ags2_core_script on the shell, a bare cmd binary has no exec type to transition on)
+service set_user_rotation /system/bin/sh -c "cmd settings put system user_rotation 1"
+    user system
+    group system
+    oneshot
+    disabled
+
+on property:sys.boot_completed=1
+    start set_user_rotation

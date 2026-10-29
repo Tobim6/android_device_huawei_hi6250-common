@@ -123,6 +123,7 @@ BOARD_ROOT_EXTRA_FOLDERS := \
 # SELinux
 BOARD_PLAT_PRIVATE_SEPOLICY_DIR += $(VENDOR_PATH)/sepolicy/private
 BOARD_PLAT_PUBLIC_SEPOLICY_DIR += $(VENDOR_PATH)/sepolicy/public
+BOARD_SEPOLICY_DIRS += $(VENDOR_PATH)/sepolicy/vendor
 
 # Wifi: build the Android 9 HIDL hostapd (the EMUI8 one has no HIDL control interface, so the framework's
 # IHostapd lookup never succeeds); wpa_supplicant stays the vendor prebuilt.

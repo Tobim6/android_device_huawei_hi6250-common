@@ -1,0 +1,288 @@
+##############################################################################
+# AGS2 (hi6250) enforcing policy. Built from the denials of a permissive boot; labels first, allow rules only where needed.
+##############################################################################
+
+#### TEE (hardware keymaster / gatekeeper / teecd) ####
+allow hal_keymaster_default tee_device:chr_file rw_file_perms;
+allow hal_gatekeeper_default tee_device:chr_file rw_file_perms;
+allow hal_keymaster_default tee:fd use;
+allow hal_gatekeeper_default tee:fd use;
+allow tee teecd_data_file:dir create_dir_perms;
+allow tee teecd_data_file:file create_file_perms;
+allow tee teecd_data_file:filesystem getattr;
+set_prop(tee, tee_prop)
+
+#### oeminfo NVM server (/vendor/bin/oeminfo_nvm_server) ####
+type oeminfo_nvm, domain;
+type oeminfo_nvm_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(oeminfo_nvm)
+allow oeminfo_nvm oeminfo_nvm_device:blk_file rw_file_perms;
+allow oeminfo_nvm self:capability { chown fowner };
+allow oeminfo_nvm oeminfo_nvm_socket:sock_file create_file_perms;
+allow oeminfo_nvm socket_device:dir rw_dir_perms;
+allow init oeminfo_nvm_socket:sock_file { create setattr unlink };
+unix_socket_connect(rild, oeminfo_nvm, oeminfo_nvm)
+
+#### Huawei camera daemon and misc OEM daemons ####
+type hw_camera_daemon, domain;
+type hw_camera_daemon_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(hw_camera_daemon)
+allow hw_camera_daemon { hw_media_device video_device hifi_device }:chr_file rw_file_perms;
+allow hw_camera_daemon { ion_device gpu_device }:chr_file rw_file_perms;
+r_dir_file(hw_camera_daemon, sysfs_type)
+
+type hw_vendor_daemon, domain;
+type hw_vendor_daemon_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(hw_vendor_daemon)
+allow hw_vendor_daemon { hisi_tty_device hwfm_device hifi_device hw_media_device }:chr_file rw_file_perms;
+allow hw_vendor_daemon sysfs:file rw_file_perms;
+allow hw_vendor_daemon sysfs:dir r_dir_perms;
+allow hw_vendor_daemon self:netlink_socket create_socket_perms_no_ioctl;
+allow hw_vendor_daemon self:netlink_kobject_uevent_socket create_socket_perms_no_ioctl;
+allow hw_vendor_daemon kmsg_device:chr_file rw_file_perms;
+allow hw_vendor_daemon vendor_toolbox_exec:file rx_file_perms;
+allow hw_vendor_daemon vendor_shell_exec:file rx_file_perms;
+
+#### Huawei HIDL services run in the AOSP HAL domains; they register under vendor.huawei.* ####
+allow { hal_audio_default hal_wifi_default hal_light_default hal_power_default hal_sensors_default hal_gnss_default hal_vibrator_default hw_vendor_daemon hw_camera_daemon rild } hw_vendor_hwservice:hwservice_manager { add find };
+allow { hal_audio_default hal_wifi_default hal_light_default hal_power_default hal_sensors_default hal_gnss_default hal_vibrator_default hw_vendor_daemon hw_camera_daemon rild } hidl_base_hwservice:hwservice_manager add;
+
+#### Audio HAL: hifi / sound nodes ####
+allow hal_audio_default { hifi_device hwfm_device }:chr_file rw_file_perms;
+
+#### Light / power HAL: sysfs knobs ####
+allow hal_light_default sysfs:file rw_file_perms;
+allow hal_light_default sysfs:dir r_dir_perms;
+allow hal_power_default sysfs_devices_system_cpu:file rw_file_perms;
+allow hal_power_default sysfs:file rw_file_perms;
+allow hal_power_default sysfs:dir r_dir_perms;
+
+#### Wi-Fi HAL and supplicant ####
+allow hal_wifi_default self:netlink_generic_socket create_socket_perms_no_ioctl;
+allow hal_wifi_default self:netlink_route_socket { create_socket_perms_no_ioctl nlmsg_write };
+allow hal_wifi_default self:netlink_socket create_socket_perms_no_ioctl;
+allow hal_wifi_supplicant_default self:netlink_generic_socket create_socket_perms_no_ioctl;
+allow hal_wifi_supplicant_default self:netlink_route_socket { create_socket_perms_no_ioctl nlmsg_write };
+allow init wifi_data_file:lnk_file r_file_perms;
+
+#### GPU / graphics ####
+allow hal_graphics_composer_default self:netlink_kobject_uevent_socket create_socket_perms_no_ioctl;
+allow hal_graphics_composer_default sysfs:file r_file_perms;
+allow hal_graphics_composer_default sysfs:dir r_dir_perms;
+allow hal_memtrack_default proc_gpu_memory:file r_file_perms;
+
+#### Zygote reading property files that are missing from the AOSP rules ####
+get_prop(zygote, boottime_prop)
+
+#### Small fixes ####
+allow priv_app sysfs_android_usb:file r_file_perms;
+allow init tmpfs:lnk_file create;
+allow init sysfs:file setattr;
+allow installd { splash2_data_file teecd_data_file }:filesystem quotaget;
+allow mediacodec system_file:dir r_dir_perms;
+allow toolbox cache_file:file { create write append };
+allow toolbox cache_file:dir { search add_name write };
+allow fsck_untrusted media_rw_data_file:dir getattr;
+allow fsck_untrusted proc_swaps:file r_file_perms;
+set_prop(rild, radio_odm_prop)
+allow rild netd_socket:sock_file write;
+allow rild netd:unix_stream_socket connectto;
+
+#### kernel threads / vendor_init (EMUI platform drivers) ####
+allow kernel block_device:blk_file r_file_perms;
+allow kernel device:dir { add_name write };
+allow kernel self:capability { fsetid mknod };
+allow kernel splash2_data_file:dir { getattr setattr };
+allow kernel sysfs_devices_system_cpu:file write;
+allow vendor_init proc:file w_file_perms;
+allow vendor_init proc_hung_task:file w_file_perms;
+
+# oam_hisi writes connectivity chip logs to /data/log, which Treble does not allow vendor domains to touch
+
+
+#### init helpers: shells that init rc files exec (init may not execute them without a domain transition) ####
+# core shell (/system/bin/sh): boot-log capture, cmd settings, ...
+type ags2_core_script, domain, coredomain;
+domain_auto_trans(init, shell_exec, ags2_core_script)
+allow ags2_core_script { shell_exec toolbox_exec logcat_exec system_file }:file rx_file_perms;
+allow ags2_core_script system_file:dir r_dir_perms;
+# vendor shell/toolbox: vendor rc helper scripts
+type ags2_vendor_script, domain;
+domain_auto_trans(init, { vendor_shell_exec vendor_toolbox_exec }, ags2_vendor_script)
+allow ags2_vendor_script { vendor_shell_exec vendor_toolbox_exec }:file rx_file_perms;
+allow ags2_vendor_script { vendor_file vendor_configs_file }:dir r_dir_perms;
+allow ags2_vendor_script vendor_file:file rx_file_perms;
+
+#### Sysfs / device nodes ####
+allow hal_sensors_default sysfs_hw_sensors:file r_file_perms;
+allow hal_sensors_default sysfs_hw_sensors:dir search;
+allow hal_sensors_default hw_misc_device:chr_file rw_file_perms;
+allow hw_vendor_daemon sysfs_hw_conn:file rw_file_perms;
+allow hw_vendor_daemon sysfs_hw_conn:dir search;
+allow hw_camera_daemon hw_misc_device:chr_file rw_file_perms;
+allow vendor_init hw_misc_device:chr_file { getattr setattr };
+allow vendor_init hw_nv_block_device:blk_file { getattr setattr };
+
+#### Camera daemon is the camera HAL server (registers ICameraProvider) ####
+hal_server_domain(hw_camera_daemon, hal_camera)
+
+#### MAC addresses: mac_addr_normalization writes them to /data/vendor/{bt,wl} ####
+allow hw_vendor_daemon vendor_data_file:dir rw_dir_perms;
+allow hw_vendor_daemon vendor_data_file:file create_file_perms;
+allow hal_bluetooth_default vendor_data_file:dir search;
+allow hal_bluetooth_default vendor_data_file:file r_file_perms;
+
+#### Core init helper (landscape default: rewrites user_rotation in settings_system.xml before system_server starts) ####
+allow ags2_core_script system_data_file:dir { search getattr write add_name remove_name };
+allow ags2_core_script system_data_file:file r_file_perms;
+# the patched copy it writes gets its own type, so that init (not the script) is what writes settings_system.xml
+file_type_auto_trans(ags2_core_script, system_data_file, ags2_tmp_file)
+allow ags2_core_script ags2_tmp_file:file create_file_perms;
+
+#### Vendor init helper scripts (start_connectivity & co) ####
+allow ags2_vendor_script sysfs_hw_conn:dir search;
+allow ags2_vendor_script sysfs_hw_conn:file r_file_perms;
+allow ags2_vendor_script kmsg_device:chr_file w_file_perms;
+allow ags2_vendor_script hwfm_device:chr_file rw_file_perms;
+allow ags2_vendor_script self:capability { chown fowner };
+allow init hwfm_device:chr_file { getattr setattr };
+allow init kmsg_device:chr_file getattr;
+
+#### Remaining vendor HAL needs ####
+allow hw_vendor_daemon graphics_device:chr_file rw_file_perms;
+allow hw_vendor_daemon hal_graphics_allocator_default:fd use;
+allow hal_bluetooth_default hw_bt_device:chr_file rw_file_perms;
+allow hal_audio_default self:netlink_kobject_uevent_socket read;
+allow hal_vibrator_default sysfs_leds:dir search;
+allow hal_memtrack_default proc:file r_file_perms;
+allow hw_camera_daemon proc:file r_file_perms;
+allow hw_camera_daemon proc_meminfo:file r_file_perms;
+allow hw_camera_daemon hal_memtrack_default:binder call;
+allow hw_camera_daemon hal_graphics_allocator_default:binder call;
+allow hw_camera_daemon hal_sensors_default:binder call;
+allow hw_camera_daemon hw_vendor_daemon:binder call;
+allow hw_camera_daemon oeminfo_nvm:unix_stream_socket connectto;
+allow hw_camera_daemon oeminfo_nvm_socket:sock_file write;
+allow rild oeminfo_nvm_socket:sock_file write;
+allow oeminfo_nvm oeminfo_nvm_socket:sock_file create_file_perms;
+allow oeminfo_nvm oeminfo_nvm_socket:dir rw_dir_perms;
+allow oeminfo_nvm self:capability fsetid;
+allow hal_wifi_supplicant_default wpa_data_file:dir create_dir_perms;
+allow hal_wifi_supplicant_default wpa_data_file:file create_file_perms;
+allow hal_wifi_supplicant_default wpa_data_file:sock_file create_file_perms;
+allow vendor_init hw_nv_block_device:blk_file { open read };
+allow kernel hw_misc_device:chr_file { create setattr };
+
+#### Round 3 ####
+allow hal_graphics_composer_default hw_misc_device:chr_file rw_file_perms;
+allow hw_vendor_daemon hw_misc_device:chr_file rw_file_perms;
+allow { ags2_vendor_script init } hw_bt_device:chr_file { getattr setattr };
+allow ags2_vendor_script init:fifo_file write;
+allow { hal_wifi_supplicant_default hw_vendor_daemon rild hw_camera_daemon } hw_vendor_hwservice:hwservice_manager { add find };
+allow { hal_wifi_supplicant_default hw_vendor_daemon rild hw_camera_daemon } hidl_base_hwservice:hwservice_manager add;
+allow hw_camera_daemon { hal_graphics_allocator_hwservice hal_graphics_mapper_hwservice hal_memtrack_hwservice }:hwservice_manager find;
+allow hw_camera_daemon fwk_sensor_hwservice:hwservice_manager find;
+allow kernel hw_firmware_file:file r_file_perms;
+# oeminfo_nvm creates its socket (and a directory) in /dev itself
+file_type_auto_trans(oeminfo_nvm, socket_device, oeminfo_nvm_socket)
+allow oeminfo_nvm device:dir { add_name write create setattr };
+allow oeminfo_nvm device:dir remove_name;
+allow oeminfo_nvm socket_device:dir rw_dir_perms;
+
+#### Round 4 ####
+allow { hal_keymaster_default hal_gatekeeper_default } tee:unix_stream_socket connectto;
+allow { hal_audio_default hw_camera_daemon rild } oeminfo_nvm:unix_stream_socket connectto;
+allow { hal_audio_default hw_camera_daemon rild } oeminfo_nvm_socket:sock_file write;
+file_type_auto_trans(oeminfo_nvm, device, oeminfo_nvm_socket)
+allow oeminfo_nvm oeminfo_nvm_socket:{ dir file } create_file_perms;
+allow oeminfo_nvm hw_misc_device:chr_file rw_file_perms;
+allow tee rootfs:file r_file_perms;
+allow tee rootfs:dir search;
+allow init pstorefs:dir mounton;
+allow init teecd_data_file:filesystem { mount relabelfrom relabelto };
+allow init socket_device:sock_file { create setattr unlink };
+allow kernel device:chr_file { create setattr };
+allow kernel hw_firmware_file:file r_file_perms;
+allow fsck hw_secure_storage_block_device:blk_file rw_file_perms;
+allow fsck_untrusted mnt_media_rw_file:dir search;
+allow vendor_init splash2_data_file:filesystem getattr;
+allow ags2_vendor_script proc_misc:file r_file_perms;
+allow ags2_vendor_script sysfs_hw_conn:file setattr;
+dontaudit priv_app { device sysfs }:dir open;
+dontaudit priv_app { proc_interrupts proc_modules }:file { getattr open };
+dontaudit zygote { bluetooth_prop bootloader_boot_reason_prop check_root_prop }:file *;
+dontaudit webview_zygote zygote:unix_dgram_socket write;
+
+#### Round 5 ####
+allow ags2_vendor_script vendor_data_file:dir create_dir_perms;
+allow ags2_vendor_script vendor_data_file:file create_file_perms;
+allow hw_camera_daemon vendor_data_file:dir rw_dir_perms;
+allow hw_camera_daemon oeminfo_nvm_socket:dir rw_dir_perms;
+allow hw_camera_daemon oeminfo_nvm_socket:file r_file_perms;
+allow { hw_vendor_daemon } oeminfo_nvm:unix_stream_socket connectto;
+allow hw_vendor_daemon oeminfo_nvm_socket:sock_file write;
+allow hw_vendor_daemon proc:file r_file_perms;
+allow hw_vendor_daemon vendor_data_file:dir create_dir_perms;
+allow hw_vendor_daemon vendor_data_file:file create_file_perms;
+allow init self:capability sys_nice;
+allow init sysfs_hw_conn:file rw_file_perms;
+allow init teecd_data_file:dir mounton;
+allow kernel hw_firmware_file:dir search;
+allow tee { hal_keymaster_default hal_gatekeeper_default }:dir search;
+allow tee { hal_keymaster_default hal_gatekeeper_default }:file r_file_perms;
+allow fsck teecd_data_file:dir getattr;
+dontaudit priv_app { hal_memtrack_default }:binder call;
+dontaudit priv_app hal_memtrack_hwservice:hwservice_manager find;
+
+#### Round 6 ####
+hwbinder_use(hw_vendor_daemon)
+allow { kernel oeminfo_nvm } block_device:dir search;
+allow kernel splash2_data_file:dir search;
+
+# set_user_rotation service (cmd settings put ...)
+binder_use(ags2_core_script)
+binder_call(ags2_core_script, system_server)
+allow ags2_core_script settings_service:service_manager find;
+allow ags2_core_script servicemanager:service_manager list;
+
+#### Round 7: vendor daemons that link libbinder use /dev/vndbinder ####
+vndbinder_use(hal_graphics_composer_default)
+vndbinder_use(hw_vendor_daemon)
+vndbinder_use(hw_camera_daemon)
+allow teecd_data_file teecd_data_file:filesystem associate;
+vndbinder_use(tee)
+vndbinder_use(hal_drm_default)
+vndbinder_use(hal_gnss_default)
+
+#### Round 8 ####
+get_prop({ hw_vendor_daemon hw_camera_daemon hal_gnss_default hal_drm_default tee }, hwservicemanager_prop)
+allow hw_vendor_daemon self:capability { chown fowner };
+dontaudit hw_vendor_daemon system_data_file:dir getattr;
+allow tee self:capability sys_resource;
+allow hw_vendor_daemon proc_misc:file r_file_perms;
+allow hw_vendor_daemon hw_bt_device:chr_file { getattr setattr };
+allow hw_vendor_daemon vendor_file:file { execute execute_no_trans };
+allow hal_gnss_default vendor_data_file:sock_file write;
+
+#### Round 9b ####
+# init.hi6250.rc bind-mounts the chip-specific libbt-vendor-<chip>.so over libbt-vendor.so (fs stage)
+allow init vendor_file:file mounton;
+get_prop(hw_vendor_daemon, bluetooth_prop)
+allow init ram_device:blk_file write;
+
+#### Round 10: vendor-owned properties ####
+set_prop(hw_vendor_daemon, hw_conn_prop)
+set_prop({ hal_bluetooth_default hw_vendor_daemon hal_wifi_default hal_gnss_default hal_audio_default }, hw_xcollie_prop)
+
+# system_teecd is started with LD_PRELOAD=libvndbinder_shim.so (init.tee.rc); the domain transition would make bionic ignore it (AT_SECURE)
+allow init tee:process noatsecure;
+
+#### Round 11 ####
+allow { hw_vendor_daemon hal_audio_default hw_camera_daemon } oeminfo_nvm_socket:dir create_dir_perms;
+allow { hw_vendor_daemon hal_audio_default hw_camera_daemon } oeminfo_nvm_socket:file create_file_perms;
+allow hal_gnss_default hw_vendor_daemon:unix_stream_socket connectto;
+allow hal_graphics_allocator_default graphics_device:chr_file rw_file_perms;
+allow { hal_light_default hal_power_default hal_sensors_default } sysfs_hw_dt:dir r_dir_perms;
+allow hw_vendor_daemon self:netlink_generic_socket create_socket_perms_no_ioctl;
+allow hw_vendor_daemon self:capability { chown fowner fsetid sys_nice };
+allow hw_vendor_daemon sysfs_hw_touch:dir search;

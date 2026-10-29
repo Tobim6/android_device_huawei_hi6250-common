@@ -3,3 +3,7 @@ hal_server_domain(shal_lineage_touch_default, hal_lineage_touch)
 
 type shal_lineage_touch_default_exec, exec_type, file_type;
 init_daemon_domain(shal_lineage_touch_default)
+
+# glove-mode switch of the Huawei touch driver
+allow shal_lineage_touch_default sysfs_hw_touch:file rw_file_perms;
+allow shal_lineage_touch_default sysfs_hw_touch:dir search;

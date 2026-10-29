@@ -18,3 +18,12 @@ $(ISP_DTS_LINK): $(LOCAL_PATH)/Android.mk
 	@rm -f $@
 	$(hide) ln -sf /system/etc/firmware/isp_dts.img $@
 ALL_DEFAULT_INSTALLED_MODULES += $(ISP_DTS_LINK)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libvndbinder_shim
+LOCAL_SRC_FILES := vndbinder_shim.cpp
+LOCAL_SHARED_LIBRARIES := libbinder libutils
+LOCAL_PROPRIETARY_MODULE := true
+LOCAL_MODULE_TAGS := optional
+LOCAL_MULTILIB := both
+include $(BUILD_SHARED_LIBRARY)

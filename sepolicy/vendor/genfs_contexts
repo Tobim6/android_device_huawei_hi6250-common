@@ -1,0 +1,7 @@
+genfscon proc /gpu_memory   u:object_r:proc_gpu_memory:s0
+genfscon sysfs /class/sensors                 u:object_r:sysfs_hw_sensors:s0
+genfscon sysfs /hi110x_ps                     u:object_r:sysfs_hw_conn:s0
+genfscon sysfs /hisys                         u:object_r:sysfs_hw_conn:s0
+genfscon sysfs /devices/platform/battery      u:object_r:sysfs_batteryinfo:s0
+genfscon sysfs /firmware/devicetree/base u:object_r:sysfs_hw_dt:s0
+genfscon sysfs /devices/platform/huawei_sensor u:object_r:sysfs_hw_sensors:s0

@@ -35,6 +35,7 @@ PRODUCT_PACKAGES += \
 # Camera (the ICameraProvider is registered by the vendor CameraDaemon itself)
 PRODUCT_PACKAGES += \
     libfence_compat \
+    libvndbinder_shim \
     Snap
 
 # Wifi: Android 9 HIDL hostapd (soft AP)
@@ -44,6 +45,11 @@ PRODUCT_PACKAGES += \
 # Device init scripts
 PRODUCT_PACKAGES += \
     init.hi6250.rc
+
+# Core-side init commands (init.hi6250.rc runs as vendor_init and may not touch core /data)
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/rootdir/etc/init.ags2_core.rc:$(TARGET_COPY_OUT_SYSTEM)/etc/init/ags2-core.rc \
+    $(LOCAL_PATH)/rootdir/etc/init.ags2_core_moved.rc:$(TARGET_COPY_OUT_SYSTEM)/etc/init/ags2-core-moved.rc
 
 # Display
 PRODUCT_PACKAGES += \
@@ -64,7 +70,7 @@ PRODUCT_PACKAGES += \
 # NFC: none of the AGS2 tablets have NFC hardware, so no NfcNci/HAL/features here.
 # Landscape default (see rootdir/bin/landscape_default.sh)
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/rootdir/bin/landscape_default.sh:$(TARGET_COPY_OUT_VENDOR)/bin/landscape_default.sh
+    $(LOCAL_PATH)/rootdir/bin/landscape_default.sh:$(TARGET_COPY_OUT_SYSTEM)/bin/landscape_default.sh
 
 # Permissions
 PRODUCT_COPY_FILES += \

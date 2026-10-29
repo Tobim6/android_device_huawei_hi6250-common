@@ -51,5 +51,5 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 
 # Hardware Bluetooth/wifi MAC addresses, written from NV by mac_addr_normalization
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.bt.bdaddr_path=/data/misc/bluedroid/macbt \
+    ro.bt.bdaddr_path=/data/vendor/bt/macbt \
     ro.wifi.wifiaddr_path=/data/misc/wifi/macwifi

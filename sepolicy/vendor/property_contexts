@@ -1,0 +1,5 @@
+trustedcore_sfs_property     u:object_r:tee_prop:s0
+persist.odm.radio.           u:object_r:radio_odm_prop:s0
+setup_hi110x_modules         u:object_r:hw_conn_prop:s0
+odm.xcollie.                 u:object_r:hw_xcollie_prop:s0
+odm.thp.                     u:object_r:hw_thp_prop:s0

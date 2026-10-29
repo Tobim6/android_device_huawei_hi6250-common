@@ -54,26 +54,20 @@ on fs
 on post-fs-data
     start teecd
 
-    # Landscape from the first frame: patch the stored user_rotation before system_server reads it.
-    exec - root root -- /vendor/bin/sh /vendor/bin/landscape_default.sh
-
     # Android 9 wifi paths; the stock (Android 8) rc only made /data/misc/wifi, so
     # wpa_supplicant could not create /data/vendor/wifi/wpa/wpa_supplicant.conf.
     mkdir /data/vendor/wifi 0771 wifi wifi
     mkdir /data/vendor/wifi/wpa 0770 wifi wifi
     mkdir /data/vendor/wifi/wpa/sockets 0770 wifi wifi
     mkdir /data/vendor/wifi/hostapd 0770 wifi wifi
-    # The shipped (EMUI8-built) supplicant generates its config under /data/vendor/wifi/wpa
-    # but opens these legacy paths when adding wlan0/p2p0, and exits if p2p0 cannot be added.
-    symlink /data/vendor/wifi/wpa/wpa_supplicant.conf /data/misc/wifi/wpa_supplicant.conf
-    symlink /data/vendor/wifi/wpa/p2p_supplicant.conf /data/misc/wifi/p2p_supplicant.conf
+    # MAC address files written by the (path-patched) mac_addr_normalization; the BT HAL reads ro.bt.bdaddr_path
+    mkdir /data/vendor/bt 0770 bluetooth bluetooth
+    mkdir /data/vendor/wl 0770 wifi wifi
+    # (the legacy /data/misc/wifi symlinks are created by init.ags2_core.rc)
 
 on property:ro.lineage.device=*
     setprop qemu.hw.mainkeys 1
 
-on property:sys.user.0.ce_available=true
-    mkdir /data/sec_storage_data 0700 system system
-    mkdir /data/sec_storage_data_users 0700 system system
 
 service bfm-ctl /system/bin/bfm-ctl
     class main
@@ -118,7 +112,6 @@ on early-init
 on early-boot
     write /sys/block/dm-0/queue/read_ahead_kb 2048
     mkdir /mnt/media_rw 0750 media_rw media_rw
-    mkdir /data/samba 0755 media_rw media_rw
 
 on init
     chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
@@ -317,11 +310,6 @@ on property:sys.boot_completed=1
     write /sys/kernel/eas/sd_capacity_margin 1860
 
 on post-fs-data
-    mkdir /data/nfc
-    chown nfc nfc /data/nfc
-    mkdir /data/share 0770 media_rw media_rw
-    chown media_rw media_rw /data/share
-    mkdir /data/samba 0755 media_rw media_rw
 
 on boot
     chmod  0660  /dev/fingerprint
@@ -574,15 +562,11 @@ on post-fs-data
     chown radio system /splash2/sim/offlinelogs/slot1_simoffline.txt
     chown root  radio  /splash2/sim/sim_pin_file.bin
     chown root  radio  /splash2/sim/pin_key_file.bin
-    mkdir /data/camera
-    chown system camera /data/camera
-    chmod 771 /data/camera
-    chmod 664 /data/camera/hisi_sensor0
-    chmod 664 /data/camera/hisi_sensor1
-    mkdir /data/img
-    chown system camera /data/img
-    chmod 770 /data/img
-    mkdir /data/media 0770 media_rw media_rw
+    mkdir /data/vendor/camera 0771 system camera
+    chown system camera /data/vendor/camera
+    chmod 771 /data/vendor/camera
+    chmod 664 /data/vendor/camera/hisi_sensor0
+    chmod 664 /data/vendor/camera/hisi_sensor1
 
 on property:ro.boot.ddrsize=2
     write /proc/sys/vm/page-cluster 0
@@ -661,17 +645,11 @@ on boot
 # The panel is natively portrait. This SurfaceFlinger has no ro.sf.hwrotation, so landscape is the
 # framework's ROTATION_90 user rotation. The SettingsProvider overlay only helps on a rebuilt system
 # image and was observed to be reset to 0 after reboot, so also enforce it from init at boot.
-service set_user_rotation /system/bin/cmd settings put system user_rotation 1
-    user root
-    oneshot
-    disabled
-
-on property:sys.boot_completed=1
-    start set_user_rotation
+# (the set_user_rotation service lives in init.ags2_core.rc: it runs a core binary)
 
 # NV (oeminfo) server: serves the factory MACBT/MACWLAN items to mac_addr_normalization (and camera NV).
-# The stock /sbin/oeminfo_nvm_server of the EMUI8 ramdisk is missing from our ramdisk, so run the copy this build installs in /system/bin (an older revision pointed at /vendor/bin, which does not exist, so MACBT/MACWLAN fell back to random addresses).
-service oeminfo_nvm_vendor /system/bin/oeminfo_nvm_server
+# The stock /sbin/oeminfo_nvm_server of the EMUI8 ramdisk is missing from our ramdisk, so run the copy this build installs in /vendor/bin (it is a vendor daemon for SELinux/Treble purposes).
+service oeminfo_nvm_vendor /vendor/bin/oeminfo_nvm_server
     class core
     user root
     group root

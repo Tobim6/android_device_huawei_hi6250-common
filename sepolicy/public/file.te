@@ -21,3 +21,6 @@ type sysfs_devices_platform_amba, sysfs_type, fs_type;
 type sysfs_fingerprint, sysfs_type, fs_type;
 type sysfs_touchscreen, sysfs_type, fs_type;
 type teecd_data_file, file_type;
+
+# Huawei touch driver sysfs (glove mode); public because both the touch HAL (platform) and vendor daemons look at it
+type sysfs_hw_touch, fs_type, sysfs_type;
