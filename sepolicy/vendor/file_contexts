@@ -54,3 +54,4 @@
 /(vendor|system/vendor)/bin/(aptouch_daemon|hinetmanager|check_root|isplogcat|start_connectivity_hisi)  u:object_r:hw_vendor_daemon_exec:s0
 /dev/media[0-9]+                                u:object_r:hw_media_device:s0
 /dev/chrKmsgPlat                                u:object_r:hw_misc_device:s0
+/dev/smartpakit                                 u:object_r:hw_misc_device:s0

@@ -286,3 +286,6 @@ allow { hal_light_default hal_power_default hal_sensors_default } sysfs_hw_dt:di
 allow hw_vendor_daemon self:netlink_generic_socket create_socket_perms_no_ioctl;
 allow hw_vendor_daemon self:capability { chown fowner fsetid sys_nice };
 allow hw_vendor_daemon sysfs_hw_touch:dir search;
+
+#### Audio: speaker amplifier (smartpakit) ####
+allow hal_audio_default hw_misc_device:chr_file rw_file_perms;
